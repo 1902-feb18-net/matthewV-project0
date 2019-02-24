@@ -1,30 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿
 namespace Project0.Library
 {
     class Customer
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public Address address { get; set; }
-        public Store defaultStore { get; set; } = new Store();
+        public Address Address { get; set; }
+        //etc.
 
-        //Cannot place more than one order from the same location within two hours?
+        public IStore DefaultStore { get; set; } //need actual default store?
 
-        //Constructors
+
+        //Cannot place more than one order from the same location within two hours!
+
+
         public Customer(string first, string last)
         {
             FirstName = first;
             LastName = last;
         }
 
-        public Customer(string first, string last, Store newDefaultStore)
+        //create customer with given default store
+        public Customer(string first, string last, IStore newDefaultStore) 
         {
             FirstName = first;
             LastName = last;
-            defaultStore = newDefaultStore;
+            DefaultStore = newDefaultStore;
         }
 
 
