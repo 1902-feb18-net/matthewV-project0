@@ -1,5 +1,5 @@
 ﻿
-namespace Project0.Library
+namespace Project0.Library.Models
 {
     public class Address
     {
@@ -8,8 +8,14 @@ namespace Project0.Library
         public string State { get; set; }
         public int Zipcode { get; set; }
 
+        Address()
+        {
+            Street = "";
+            City = "";
+            State = "";
+        }
 
-        Address(string str, string cit, string sta, int zip)
+         Address(string str, string cit, string sta, int zip)
         {
             Street = str;
             City = cit;

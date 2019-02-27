@@ -1,18 +1,26 @@
 ﻿
-namespace Project0.Library
+using System.Xml.Serialization;
+
+namespace Project0.Library.Models
 {
-    class Customer
+    public class Customer
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        [XmlElement]
         public Address Address { get; set; }
         //etc.
 
-        public IStore DefaultStore { get; set; } //need actual default store?
+        public PizzaStore DefaultStore { get; set; } //need actual default store?
 
 
         //Cannot place more than one order from the same location within two hours!
 
+        public Customer()
+        {
+            FirstName = "";
+            LastName = "";
+        }
 
         public Customer(string first, string last)
         {
@@ -21,7 +29,7 @@ namespace Project0.Library
         }
 
         //create customer with given default store
-        public Customer(string first, string last, IStore newDefaultStore) 
+        public Customer(string first, string last, PizzaStore newDefaultStore) 
         {
             FirstName = first;
             LastName = last;
