@@ -2,14 +2,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace Project0.Library.Repositories
 {
+    [DataContract]
     public class PizzaStoreRepository
     {
         /// <summary>
         /// A repository managing data access for pizza restaurants.
         /// </summary>
+        [DataMember]
         private readonly ICollection<PizzaStore> _stores;
 
         /// <summary>
@@ -25,7 +28,7 @@ namespace Project0.Library.Repositories
         /// Get all restaurants with deferred execution.
         /// </summary>
         /// <returns>The collection of restaurants</returns>
-        public IEnumerable<PizzaStore> GetRestaurants(string search = null)
+        public IEnumerable<PizzaStore> GetStores(string search = null)
         {
             if (search == null) //no parameter defaults to returning each item
             {
@@ -35,15 +38,20 @@ namespace Project0.Library.Repositories
                 }
             }
             else
-            {   //or return each pizza restaurant with the given item in inventory (doesn't check quantity!)
+            {   //or return each pizza restaurant with the given item in inventory (doesn't check quantity)
                 foreach (var item in _stores) 
                 {
-                    foreach(InventoryItem inven in item.Inventory)
+                    //foreach(InventoryItem inven in item.Inventory)
+                    //{
+                    //    if(inven.Name == search)
+                    //    {
+                    //        yield return item;
+                    //    }
+                    //}
+
+                    if (item.Inventory.ContainsKey(search))
                     {
-                        if(inven.Name == search)
-                        {
-                            yield return item;
-                        }
+                        yield return item;
                     }
                     
                 }
@@ -55,16 +63,16 @@ namespace Project0.Library.Repositories
         /// </summary>
         /// <param name="id">The ID of the restaurant</param>
         /// <returns>The restaurant</returns>
-        public PizzaStore GetRestaurantById(int id)
+        public PizzaStore GetStoreById(int id)
         {
             return _stores.First(r => r.Id == id);  //First will always return the one result, since Id unique
         }
 
         /// <summary>
-        /// Add a pizza restaurant.
+        /// Add a pizza store restaurant.
         /// </summary>
         /// <param name="restaurant">The restaurant object</param>
-        public void AddRestaurant(PizzaStore restaurant)
+        public void AddStore(PizzaStore restaurant)
         {
             if (_stores.Any(r => r.Id == restaurant.Id))
             {
@@ -77,20 +85,20 @@ namespace Project0.Library.Repositories
         /// Delete a pizza restaurant by ID. 
         /// </summary>
         /// <param name="restaurantId">The ID of the restaurant</param>
-        public void DeleteRestaurant(int restaurantId)
+        public void DeleteStore(int restaurantId)
         {
             _stores.Remove(_stores.First(r => r.Id == restaurantId));
         }
 
         /// <summary>
-        /// Update a pizza restaurant.
+        /// Update a pizza store restaurant.
         /// </summary>
         /// <param name="restaurant">The restaurant with changed values</param>
         /// <remarks>Have to make sure pizza store obj arg has all the same fields as original (except ones changing)</remarks>
-        public void UpdateRestaurant(PizzaStore restaurant) 
+        public void UpdateStore(PizzaStore restaurant) 
         {
-            DeleteRestaurant(restaurant.Id);
-            AddRestaurant(restaurant);  
+            DeleteStore(restaurant.Id);
+            AddStore(restaurant);  
         }
 
     }

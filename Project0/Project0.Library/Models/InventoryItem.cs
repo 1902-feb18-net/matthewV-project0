@@ -1,10 +1,14 @@
-﻿
+﻿using System.Runtime.Serialization;
+
 namespace Project0.Library.Models
 {
+    [DataContract]
     public class InventoryItem
     {
-        public string Name;
-        public int Quantity;
+        [DataMember]
+        public string Name { get; set; }
+        [DataMember]
+        public int Quantity { get; set; }
 
         public InventoryItem()
         {

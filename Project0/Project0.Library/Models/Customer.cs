@@ -1,22 +1,28 @@
 ﻿
-using System.Xml.Serialization;
+using System.Runtime.Serialization;
 
 namespace Project0.Library.Models
 {
+    [DataContract]
     public class Customer
     {
+        [DataMember]
         public string FirstName { get; set; }
+        [DataMember]
         public string LastName { get; set; }
-        [XmlElement]
+        [DataMember]
+        public string Email { get; set; }
+        [DataMember]
         public Address Address { get; set; }
         //etc.
-
-        public PizzaStore DefaultStore { get; set; } //need actual default store?
+        [DataMember]
+        public PizzaStore DefaultStore { get; set; } = new PizzaStore(); 
+        //need specifics of actual default store?
 
 
         //Cannot place more than one order from the same location within two hours!
 
-        public Customer()
+        public Customer() //needed for xml serialization
         {
             FirstName = "";
             LastName = "";

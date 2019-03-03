@@ -1,18 +1,24 @@
 ﻿using System;
+using System.Runtime.Serialization;
 using System.Xml.Serialization;
 
 namespace Project0.Library.Models
 {
+    [DataContract]
     public class Order
     {
+        [DataMember]
         public DateTime OrderTime { get; set; }
-        [XmlElement]
+        [DataMember]
         public PizzaStore Store { get; set; }
-        [XmlElement]
+        [DataMember]
         public Customer Customer { get; set; }
+        [DataMember]
         public Pizza Pizza { get; set; }
+        [DataMember]
         public int Amount { get; set; }
         //total price? Should be calculable based on Pizza and Amount.
+
 
         public Order(PizzaStore store, Customer cust, Pizza pizza, int amount, DateTime now)
         {

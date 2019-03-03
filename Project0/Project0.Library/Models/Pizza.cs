@@ -1,19 +1,24 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
 
 namespace Project0.Library.Models
 {
-
+    [DataContract]
     public class Pizza //Allows on-the-fly creation of Pizzas with other ingredients and prices, not just the given child classes. 
     {
+        [DataMember]
         public HashSet<string> Items = new HashSet<string> { "Dough", "Cheese" };  //Set of items a pizza can be made out of. Assumed one of each.
-        //Every pizza should have dough and cheese. 
-
+                                                                                   //Every pizza should have dough and cheese. 
+        [DataMember]
         public decimal Price { get; set; } = 10.00m; //Decimal is recommended type for money values. Default price is $10.00
+
     }
 
     //alternatively, could've added readonly to items, with each child inheriting from Pizza and their own items added in constructor, like so
     public class PepperoniPizza : Pizza
     {
+        [DataMember]
         public static decimal DefaultPepperoniPrice { get; set; } = 15.00m;
 
         PepperoniPizza()
@@ -31,6 +36,7 @@ namespace Project0.Library.Models
 
     public class SpinachPizza : Pizza
     {
+        [DataMember]
         public static decimal DefaultSpinachPrice { get; set; } = 15.00m;
 
         SpinachPizza()
@@ -48,6 +54,7 @@ namespace Project0.Library.Models
 
     public class SausagePizza : Pizza
     {
+        [DataMember]
         public static decimal DefaultSausagePrice { get; set; } = 15.00m;
 
         SausagePizza()
@@ -55,6 +62,7 @@ namespace Project0.Library.Models
             Items.Add("Sausage");
             Price = DefaultSausagePrice;
         }
+
         SausagePizza(decimal setPrice)
         {
             Items.Add("Sausage");
@@ -64,6 +72,7 @@ namespace Project0.Library.Models
 
     public class PineapplePizza : Pizza
     {
+        [DataMember]
         public static decimal DefaultPineapplePrice { get; set; } = 15.00m;
 
         PineapplePizza()
