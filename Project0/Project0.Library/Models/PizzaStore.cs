@@ -22,9 +22,9 @@ namespace Project0.Library.Models
         public static Dictionary<string, int> InitialInventory = new Dictionary<string, int>()
         {
             { "Cheese", 25 },
-            { "Dough", 25},
+            { "Dough", 25 },
             { "Pepperoni", 15 },
-            { "Pineapple", 5},
+            { "Pineapple", 5 },
             { "Sausage", 5 },
             { "Spinach", 5 }
         };
@@ -147,13 +147,14 @@ namespace Project0.Library.Models
         //    throw new ArgumentOutOfRangeException("Item not in inventory");
         //}
 
-        public bool CheckOrderItemAvailability(string item, int amount)  
+        public bool CheckOrderItemAvailability(KeyValuePair<string, int> item, int number)  
         {
             try
             {
-                if (Inventory.TryGetValue(item, out int available))
+                if (Inventory.TryGetValue(item.Key, out int available))
                 {
-                    return (available >= amount); //if amount in inventory is more than amount being purchased
+                    return (available >= item.Value*number);
+                    //if amount of ingredient in inventory is more than amount being purchased (amount of ingredient in a pizza*number of pizzas)
                 }
                 else
                 {
@@ -184,9 +185,9 @@ namespace Project0.Library.Models
         //    return false; //shouldn't be reachable if checked order item availability beforehand
         //}
 
-        public bool OrderItem(string itemName, int amount)
+        public bool OrderItem(KeyValuePair<string, int> item, int amount)
         {
-            Inventory[itemName] -= amount; //inventory decreases when order accepted
+            Inventory[item.Key] -= item.Value*amount; //inventory decreases when order accepted
             return true;
         }
 
@@ -200,7 +201,7 @@ namespace Project0.Library.Models
             {
                 foreach (var item in pizza.Items)
                 {
-                    if (! CheckOrderItemAvailability(item, amount))
+                    if (!CheckOrderItemAvailability(item, amount))
                     {
                         throw new ArgumentException("Not enough inventory to place order, reject it");
                         //return false; //not enough inventory to place order, reject it

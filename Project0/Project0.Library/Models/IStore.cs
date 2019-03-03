@@ -25,11 +25,11 @@ namespace Project0.Library.Models
 
         void AddInventoryItem(string key, int initialAmount); //add a new item to the store's inventory
 
-        void IncreaseInventoryQuantity(string item, int amount);  //increase inventory when new stock is available
+        void IncreaseInventoryQuantity(string key, int amount);  //increase inventory when new stock is available
         
-        bool CheckOrderItemAvailability(string item, int amount); //to reject order that cannot be fulfilled with remaining inventory.
+        bool CheckOrderItemAvailability(KeyValuePair<string, int> item, int amount); //to reject order that cannot be fulfilled with remaining inventory.
 
-        bool OrderItem(string item, int amount);        //inventory decreases when order accepted.
+        bool OrderItem(KeyValuePair<string, int> item, int amount);        //inventory decreases when order accepted.
 
         //order history needs to be sortable by time and price, each both ways
         List<Order> SortOrderHistoryDate();

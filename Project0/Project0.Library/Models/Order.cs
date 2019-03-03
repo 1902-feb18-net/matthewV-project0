@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using System.Xml.Serialization;
 
 namespace Project0.Library.Models
 {
@@ -29,7 +28,6 @@ namespace Project0.Library.Models
             OrderTime = now;
         }
 
-        //need additional business rules!
 
     }
 }

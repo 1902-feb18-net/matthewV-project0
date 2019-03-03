@@ -8,8 +8,8 @@ namespace Project0.Library.Models
     public class Pizza //Allows on-the-fly creation of Pizzas with other ingredients and prices, not just the given child classes. 
     {
         [DataMember]
-        public HashSet<string> Items = new HashSet<string> { "Dough", "Cheese" };  //Set of items a pizza can be made out of. Assumed one of each.
-                                                                                   //Every pizza should have dough and cheese. 
+        public Dictionary<string, int> Items = new Dictionary<string, int> { { "Dough", 1 }, { "Cheese", 1 } };
+        //Set of items a pizza can be made out of. Every pizza should have at least dough and cheese! Assumed one of each.
         [DataMember]
         public decimal Price { get; set; } = 10.00m; //Decimal is recommended type for money values. Default price is $10.00
 
@@ -23,13 +23,13 @@ namespace Project0.Library.Models
 
         PepperoniPizza()
         {
-            Items.Add("Pepperoni");  
+            Items.Add("Pepperoni", 1);  
             Price = DefaultPepperoniPrice;
         }
 
         PepperoniPizza(decimal setPrice)
         {
-            Items.Add("Pepperoni");  
+            Items.Add("Pepperoni", 1);  
             Price = setPrice; 
         }
     }
@@ -41,13 +41,13 @@ namespace Project0.Library.Models
 
         SpinachPizza()
         {
-            Items.Add("Spinach");
+            Items.Add("Spinach", 1);
             Price = DefaultSpinachPrice;
         }
 
         SpinachPizza(decimal setPrice)
         {
-            Items.Add("Spinach");
+            Items.Add("Spinach", 1);
             Price = setPrice;
         }
     }
@@ -59,13 +59,13 @@ namespace Project0.Library.Models
 
         SausagePizza()
         {
-            Items.Add("Sausage");
+            Items.Add("Sausage", 1);
             Price = DefaultSausagePrice;
         }
 
         SausagePizza(decimal setPrice)
         {
-            Items.Add("Sausage");
+            Items.Add("Sausage", 1);
             Price = setPrice;
         }
     }
@@ -77,13 +77,13 @@ namespace Project0.Library.Models
 
         PineapplePizza()
         {
-            Items.Add("Pineapple");
+            Items.Add("Pineapple", 1);
             Price = DefaultPineapplePrice;
         }
 
         PineapplePizza(decimal setPrice)
         {
-            Items.Add("Pineapple");
+            Items.Add("Pineapple", 1);
             Price = setPrice;
         }
     }

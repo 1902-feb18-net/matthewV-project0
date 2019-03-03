@@ -84,7 +84,7 @@ namespace Project0.Testing
 
             foreach (var item in cheesePizza.Items)
             {
-                Assert.Equal(originalInventory[item], decreasedInventory[item] + amount);
+                Assert.Equal(originalInventory[item.Key], decreasedInventory[item.Key] + (amount*item.Value));
             }
         }
 
