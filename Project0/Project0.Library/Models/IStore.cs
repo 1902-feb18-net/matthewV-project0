@@ -21,13 +21,13 @@ namespace Project0.Library.Models
         Address Location { get; set; }
 
         [DataMember]
-        List<Order> OrderHistory { get; set; }
+        List<Order> OrderHistory { get; } //no rewriting history
 
         void AddInventoryItem(string key, int initialAmount); //add a new item to the store's inventory
 
         void IncreaseInventoryQuantity(string key, int amount);  //increase inventory when new stock is available
         
-        bool CheckOrderItemAvailability(KeyValuePair<string, int> item, int amount); //to reject order that cannot be fulfilled with remaining inventory.
+        bool CheckOrderItemAvailability(Dictionary<Pizza, int> pizzas); //to reject order that cannot be fulfilled with remaining inventory.
 
         bool OrderItem(KeyValuePair<string, int> item, int amount);        //inventory decreases when order accepted.
 

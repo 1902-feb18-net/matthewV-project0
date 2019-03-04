@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Runtime.Serialization;
 
 namespace Project0.Library.Models
@@ -6,6 +7,8 @@ namespace Project0.Library.Models
     [DataContract]
     public class Customer
     {
+        private PizzaStore _store = new PizzaStore(); //customer has default pizza store   //need specifics of actual default store?
+
         [DataMember]
         public string FirstName { get; set; }
         [DataMember]
@@ -16,30 +19,34 @@ namespace Project0.Library.Models
         public Address Address { get; set; }
         //etc.
         [DataMember]
-        public PizzaStore DefaultStore { get; set; } = new PizzaStore(); 
-        //need specifics of actual default store?
-
-
-        //Cannot place more than one order from the same location within two hours!
-
-        public Customer() //needed for xml serialization
+        public PizzaStore Store
         {
-            FirstName = "";
-            LastName = "";
+            get => _store;
+            set
+            {
+                _store = value ?? throw new ArgumentNullException(nameof(value), "Customer's store must not be null.");
+            }
+        }   
+
+
+        public Customer()  //constructor uses default store
+        {
+            FirstName = null;
+            LastName = null;
         }
 
-        public Customer(string first, string last)
+        public Customer(string first, string last) //constructor uses default store
         {
             FirstName = first;
             LastName = last;
         }
 
         //create customer with given default store
-        public Customer(string first, string last, PizzaStore newDefaultStore) 
+        public Customer(string first, string last, PizzaStore newStore)   //constructor uses given store
         {
             FirstName = first;
             LastName = last;
-            DefaultStore = newDefaultStore;
+            Store = newStore;
         }
 
 
