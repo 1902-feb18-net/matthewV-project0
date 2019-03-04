@@ -57,7 +57,7 @@ CREATE TABLE pizza
 CREATE TABLE ingredients  
 (
 	 id int Unique Not Null Identity,
-	 name  nvarchar(255) Not Null,
+	 name  nvarchar(255) Not Null Unique,
 	 Constraint ingredientsPK Primary Key (id)
 );
 
@@ -95,19 +95,19 @@ CREATE TABLE address
 	 Constraint addressPK Primary Key (id)
 );
 
-ALTER TABLE customer ADD Constraint FK_customer_location FOREIGN KEY ( store_id ) REFERENCES location (id);
+ALTER TABLE customer ADD Constraint FK_customer_location FOREIGN KEY (store_id) REFERENCES location (id);
 
-ALTER TABLE customer ADD Constraint FK_customer_address FOREIGN KEY ( address_id ) REFERENCES address (id);
+ALTER TABLE customer ADD Constraint FK_customer_address FOREIGN KEY (address_id) REFERENCES address (id);
 
-ALTER TABLE orders ADD Constraint FK_orders_location FOREIGN KEY ( store_id ) REFERENCES location (id);
+ALTER TABLE orders ADD Constraint FK_orders_location FOREIGN KEY (store_id) REFERENCES location (id);
 
-ALTER TABLE orders ADD Constraint FK_orders_customer FOREIGN KEY ( customer_id ) REFERENCES customer (id);
+ALTER TABLE orders ADD Constraint FK_orders_customer FOREIGN KEY (customer_id) REFERENCES customer (id);
 
-ALTER TABLE orders ADD Constraint FK_orders_address FOREIGN KEY ( address_id ) REFERENCES address (id);
+ALTER TABLE orders ADD Constraint FK_orders_address FOREIGN KEY (address_id) REFERENCES address (id);
 
-ALTER TABLE order_items ADD Constraint FK_orderitems_orders FOREIGN KEY ( order_id ) REFERENCES orders (id);
+ALTER TABLE order_items ADD Constraint FK_orderitems_orders FOREIGN KEY (order_id) REFERENCES orders (id);
 
-ALTER TABLE order_items ADD Constraint FK_orderitems_pizza FOREIGN KEY ( pizza_id ) REFERENCES pizza (id);
+ALTER TABLE order_items ADD Constraint FK_orderitems_pizza FOREIGN KEY (pizza_id) REFERENCES pizza (id);
 
 ALTER TABLE location ADD Constraint FK_location_address FOREIGN KEY (address_id) REFERENCES address (id);
 

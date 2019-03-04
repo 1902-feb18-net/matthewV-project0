@@ -15,7 +15,7 @@ namespace Project0.Testing
             Customer newCustomer = new Customer();
 
             //Act
-            var defaultStore = newCustomer.DefaultStore;
+            var defaultStore = newCustomer.Store;
 
             //Assert
             Assert.NotNull(defaultStore);
@@ -76,10 +76,11 @@ namespace Project0.Testing
             PizzaStore newPizzaStore = new PizzaStore();
             Customer newCustomer = new Customer();
             Pizza cheesePizza = new Pizza();
+            Dictionary<Pizza, int> order = new Dictionary<Pizza, int>() { { cheesePizza, amount } } ;
             var originalInventory = new Dictionary<string, int> (newPizzaStore.Inventory);
 
             //Act
-            newPizzaStore.PlacedOrder(newCustomer, cheesePizza, amount);
+            newPizzaStore.PlacedOrder(newCustomer, order);
             var decreasedInventory = new Dictionary<string, int>(newPizzaStore.Inventory);
 
             foreach (var item in cheesePizza.Items)
@@ -98,9 +99,11 @@ namespace Project0.Testing
             PizzaStore newPizzaStore = new PizzaStore();
             Customer newCustomer = new Customer();
             Pizza cheesePizza = new Pizza();
+            Dictionary<Pizza, int> order = new Dictionary<Pizza, int>() { { cheesePizza, amount } };
+
 
             //Act and Assert
-            Assert.Throws<ArgumentOutOfRangeException>( () => newPizzaStore.PlacedOrder(newCustomer, cheesePizza, amount));
+            Assert.Throws<ArgumentOutOfRangeException>( () => newPizzaStore.PlacedOrder(newCustomer, order));
 
         }
 
@@ -113,9 +116,10 @@ namespace Project0.Testing
             PizzaStore newPizzaStore = new PizzaStore();
             Customer newCustomer = new Customer();
             Pizza cheesePizza = new Pizza();
+            Dictionary<Pizza, int> order = new Dictionary<Pizza, int>() { { cheesePizza, amount } };
 
             //Act
-            Assert.Throws<ArgumentException>(() => newPizzaStore.PlacedOrder(newCustomer, cheesePizza, amount));
+            Assert.Throws<ArgumentException>(() => newPizzaStore.PlacedOrder(newCustomer, order));
 
         }
 

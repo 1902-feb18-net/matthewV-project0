@@ -32,25 +32,45 @@ namespace Project0.Library.Models
 
         private static int nextID = 0; //for uniqueness of ids
         [DataMember]
-        public int Id; //for identification of this store object
+        public int Id { get;} //for identification of this store object. Readonly. Cannot be null.
+
+        private string _name = "Matthew's Pizzas"; //default name. Must not be null.
 
         [DataMember]
-        public string Name { get; set; } = "Matthew's Pizzas";
+        public string Name
+        {
+            get => _name;
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException(nameof(value), "Store's name must not be null.");
+                }
+
+                if (value.Length == 0)
+                {
+                    throw new ArgumentException("Store's name must not be empty.", nameof(value));
+                }
+
+                _name = value;
+            }
+        }
+
 
         [DataMember]
         public Dictionary<string, int> Inventory { get; set; } //string is name of product, int is store's available inventory. Assume unit is amount for one pizza.
-        //public List<(string, int)> Inventory { get; set; } 
-        //[XmlArray("ListOfInventoryItems")]
-        //public HashSet<InventoryItem> Inventory { get; set; }
+                                                               //[XmlArray("ListOfInventoryItems")]
+                                                               //public HashSet<InventoryItem> Inventory { get; set; }
 
         private readonly object inventoryLock = new object(); //lock to prevent inventory amount from changing between checking quantity and ordering
-        //private readonly object orderLock = new object(); //lock to prevent order history from changing while sorting it
+        private readonly object orderLock = new object(); //lock to prevent order history from changing while sorting it
 
         [DataMember]
-        public List<Order> OrderHistory { get; set; } = new List<Order>();  //"location has order history" is a requirement. New store has no orders yet.
+        public List<Order> OrderHistory { get; } = new List<Order>();  //"location has order history" is a requirement. New store has no orders yet.
+                                                                       //do not want rewriting history -> no set, just add to the List.
 
         [DataMember]
-        public Address Location { get; set; } //must be unique
+        public Address Location { get; set; } //must be unique?
 
         //public PizzaStore() //every new pizza store comes with a default amount of some items
         //{
@@ -58,11 +78,11 @@ namespace Project0.Library.Models
         //    //Inventory = new HashSet<InventoryItem>(InitialInventory);
         //}
 
-        public PizzaStore() //every new pizza store comes with a default amount of some items
+        public PizzaStore() //every new pizza store comes with a default amount of some items and empty order history
         {
             Id = Interlocked.Increment(ref nextID);
             Inventory = new Dictionary<string, int>(InitialInventory);
-            Location = new Address("701 W Nedderman Dr " + Id, "Arlington", "TX", "76019", "US");
+            Location = new Address("701 W Nedderman Dr " + Id, "Arlington", "TX", "76019", "US"); //unique default address
         }
 
         //public PizzaStore(List<InventoryItem> diffInitialInventory)    //a new store opening with a different inventory than the default
@@ -77,6 +97,17 @@ namespace Project0.Library.Models
             Inventory = new Dictionary<string, int>(diffInitialInventory);
             Location = new Address("701 W Nedderman Dr " + Id, "Arlington", "TX", "76019", "US");
         }
+
+        //a new store opening with given values. Caller needs to verify address uniqueness.
+        public PizzaStore(string name, Dictionary<string, int> diffInitialInventory, Address address)
+        {
+            Id = Interlocked.Increment(ref nextID);
+            Name = name;
+            Inventory = new Dictionary<string, int>(diffInitialInventory);
+            Location = address;
+            //still has empty order history, need to add after constructor
+        }
+
 
         //public void AddInventoryItem(string key, int initialAmount)   //add new item with the specified amount to the store's inventory
         //{
@@ -147,20 +178,47 @@ namespace Project0.Library.Models
         //    throw new ArgumentOutOfRangeException("Item not in inventory");
         //}
 
-        public bool CheckOrderItemAvailability(KeyValuePair<string, int> item, int number)  
+        public bool CheckOrderItemAvailability(Dictionary<Pizza, int> pizzas)
         {
             try
             {
-                if (Inventory.TryGetValue(item.Key, out int available))
+
+                Dictionary<string, int> totalIngredientRequirements = new Dictionary<string, int>();
+                foreach (var pizza in pizzas) //foreach pizza
                 {
-                    return (available >= item.Value*number);
-                    //if amount of ingredient in inventory is more than amount being purchased (amount of ingredient in a pizza*number of pizzas)
+                    foreach (var ingredient in pizza.Key.Items) //foreach ingredient in that pizza
+                    {
+                        //add the amount of that ingredient for this pizza * number of this pizza to count
+                        if (totalIngredientRequirements.ContainsKey(ingredient.Key))
+                        {
+                            totalIngredientRequirements[ingredient.Key] += ingredient.Value * pizza.Value;
+                        }
+                        else
+                        {
+                            totalIngredientRequirements.Add(ingredient.Key, ingredient.Value * pizza.Value);
+                        }
+                    }
                 }
-                else
+
+                foreach (var pizza in pizzas)
                 {
-                    //key not found -> log it 
-                    throw new ArgumentOutOfRangeException("Item not in inventory");
+                    foreach (var ingredient in pizza.Key.Items)
+                    {
+                        if (Inventory.TryGetValue(ingredient.Key, out int available))
+                        {
+                            if(available < totalIngredientRequirements[ingredient.Key])
+                            { return false; }
+                            //if the amount of an ingredient in inventory is less than the total amount of it being purchased 
+                        }
+                        else
+                        {
+                            //key not found -> log it 
+                            throw new ArgumentOutOfRangeException($"Item ingredient {ingredient.Key} not in store's inventory.");
+                        }
+                    }
                 }
+                return true; //if inventory greater than or equal to amount required, for all ingredients 
+
             }
             catch (ArgumentNullException e)
             {
@@ -187,38 +245,60 @@ namespace Project0.Library.Models
 
         public bool OrderItem(KeyValuePair<string, int> item, int amount)
         {
-            Inventory[item.Key] -= item.Value*amount; //inventory decreases when order accepted
+            Inventory[item.Key] -= item.Value * amount; //inventory decreases when order accepted
             return true;
         }
 
 
-        public bool PlacedOrder(Customer cust, Pizza pizza, int amount)
+        public bool PlacedOrder(Customer cust, Dictionary<Pizza, int> pizzas)
         {
-            if (amount <= 0)
-                throw new ArgumentOutOfRangeException("Cannot order 0 or less pizzas, reject it");
-
-            lock (inventoryLock) //prevent changes to inventory while an order is being placed
+            foreach (var pizza in pizzas)
             {
-                foreach (var item in pizza.Items)
-                {
-                    if (!CheckOrderItemAvailability(item, amount))
-                    {
-                        throw new ArgumentException("Not enough inventory to place order, reject it");
-                        //return false; //not enough inventory to place order, reject it
-                    }
-                }
+                if (pizza.Value <= 0)
+                    throw new ArgumentOutOfRangeException("Cannot order 0 or less of a pizza.");
+            }
 
-                foreach (var item in pizza.Items)
+            DateTime ordertime = DateTime.Now;
+
+            lock (orderLock) //prevent changes to orderhistory while checking it
+            {
+                foreach (var order in OrderHistory)
                 {
-                    if(!OrderItem(item, amount))
+                    //need to check 2hr time constraint for customer at this store
+                    if (order.Customer.Equals(cust) && ordertime.Subtract(order.OrderTime) <= new TimeSpan(2, 0, 0))
                     {
-                        throw new Exception("Failure ordering item, may need to revert transaction"); 
-                        //Unknown error, need to undo partial order!
+                        throw new Exception("A customer cannot place another order at a pizza store within two hours.");
                     }
                 }
             }
 
-            Order currentOrder = new Order(this, cust, pizza, amount, DateTime.Now);
+            lock (inventoryLock) //prevent changes to inventory while an order is being placed
+            {
+                foreach (var item in pizzas)
+                {
+                    if (!CheckOrderItemAvailability(pizzas))
+                    {
+                        throw new ArgumentException("Not enough inventory to place order, reject it");
+                        //return false; //not enough inventory to place order, reject it
+                    }
+
+                }
+
+                foreach (var item in pizzas)
+                {
+                    foreach (var ingredient in item.Key.Items)
+                    {
+                        if (!OrderItem(ingredient, item.Value))
+                        {
+                            throw new Exception("Failure ordering item, may need to revert transaction");
+                            //Unknown error, need to undo partial order!
+                        }
+
+                    }
+                }
+            }
+
+            Order currentOrder = new Order(this, cust, pizzas, ordertime);
             OrderHistory.Add(currentOrder);
 
             return true;
@@ -246,16 +326,16 @@ namespace Project0.Library.Models
         public List<Order> SortOrderHistoryPrice()
         {
             List<Order> sortedHist = new List<Order>(OrderHistory); //copy history, then work on copy. Don't want to effect it while other methods use it.
-            sortedHist.Sort((a, b) => (a.Amount * a.Pizza.Price).CompareTo(b.Amount * b.Pizza.Price)); //TotalPrice = indivdual pizzaPrice*amountOfPizzas
+            sortedHist.Sort((a, b) => a.TotalPrice.CompareTo(b.TotalPrice)); //TotalPrice = individualPizzaPrice*amountOfPizzas
 
-            return sortedHist; 
+            return sortedHist;
         }
 
         public List<Order> SortOrderHistoryPriceReverse()
         {
             List<Order> sortedHist = new List<Order>(OrderHistory); //copy history, then work on copy. Don't want to effect it while other methods use it.
 
-            sortedHist.Sort((a, b) => (a.Amount * a.Pizza.Price).CompareTo(b.Amount * b.Pizza.Price));
+            sortedHist.Sort((a, b) => a.TotalPrice.CompareTo(b.TotalPrice));
             sortedHist.Reverse(); //reverse to make Highest to Lowest
 
             return sortedHist;

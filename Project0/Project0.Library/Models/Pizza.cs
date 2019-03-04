@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
-using System.Xml.Serialization;
 
 namespace Project0.Library.Models
 {
@@ -10,8 +10,28 @@ namespace Project0.Library.Models
         [DataMember]
         public Dictionary<string, int> Items = new Dictionary<string, int> { { "Dough", 1 }, { "Cheese", 1 } };
         //Set of items a pizza can be made out of. Every pizza should have at least dough and cheese! Assumed one of each.
+
+        private decimal _price = 10.00m; //decimal is recommended type for money values. Default price is $10.00
         [DataMember]
-        public decimal Price { get; set; } = 10.00m; //Decimal is recommended type for money values. Default price is $10.00
+        public decimal Price
+        {
+            get => _price;
+            set
+            {
+                if (value <= 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value), "Price cannot be 0 or less.");
+                }
+                _price = value;
+            }
+        }
+
+        public Pizza() { }
+
+        public Pizza(decimal price)
+        {
+            Price = price;
+        }
 
     }
 
@@ -23,14 +43,14 @@ namespace Project0.Library.Models
 
         PepperoniPizza()
         {
-            Items.Add("Pepperoni", 1);  
+            Items.Add("Pepperoni", 1);
             Price = DefaultPepperoniPrice;
         }
 
         PepperoniPizza(decimal setPrice)
         {
-            Items.Add("Pepperoni", 1);  
-            Price = setPrice; 
+            Items.Add("Pepperoni", 1);
+            Price = setPrice;
         }
     }
 
