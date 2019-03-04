@@ -1,5 +1,4 @@
-﻿
-using Project0.DataAccess;
+﻿using Project0.DataAccess;
 
 namespace Project0.Library.DAORepositories
 {
