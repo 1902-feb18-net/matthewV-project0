@@ -7,7 +7,7 @@ namespace Project0.Library.Models
     [DataContract]
     public class Customer
     {
-        private PizzaStore _store = new PizzaStore(); //customer has default pizza store   //need specifics of actual default store?
+        private PizzaStore _store = new PizzaStore(); //customer has default pizza store  
 
         [DataMember]
         public string FirstName { get; set; }

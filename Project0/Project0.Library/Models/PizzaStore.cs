@@ -8,17 +8,6 @@ namespace Project0.Library.Models
     [DataContract]
     public class PizzaStore : IStore
     {
-        //default initial inventory for every new Pizza store
-        //public static HashSet<InventoryItem> InitialInventory = new HashSet<InventoryItem>() 
-        //{
-        //    new InventoryItem("Cheese", 25),
-        //    new InventoryItem("Dough", 25),
-        //    new InventoryItem("Pepperoni", 15),
-        //    new InventoryItem("Pineapple", 5),
-        //    new InventoryItem("Sausage", 5),
-        //    new InventoryItem("Spinach", 5)
-        //};
-
         public static Dictionary<string, int> InitialInventory = new Dictionary<string, int>()
         {
             { "Cheese", 25 },
@@ -28,7 +17,6 @@ namespace Project0.Library.Models
             { "Sausage", 5 },
             { "Spinach", 5 }
         };
-
 
         private static int nextID = 0; //for uniqueness of ids
         [DataMember]
@@ -59,8 +47,7 @@ namespace Project0.Library.Models
 
         [DataMember]
         public Dictionary<string, int> Inventory { get; set; } //string is name of product, int is store's available inventory. Assume unit is amount for one pizza.
-                                                               //[XmlArray("ListOfInventoryItems")]
-                                                               //public HashSet<InventoryItem> Inventory { get; set; }
+
 
         private readonly object inventoryLock = new object(); //lock to prevent inventory amount from changing between checking quantity and ordering
         private readonly object orderLock = new object(); //lock to prevent order history from changing while sorting it
@@ -72,24 +59,12 @@ namespace Project0.Library.Models
         [DataMember]
         public Address Location { get; set; } //must be unique?
 
-        //public PizzaStore() //every new pizza store comes with a default amount of some items
-        //{
-        //    Id = Interlocked.Increment(ref nextID);
-        //    //Inventory = new HashSet<InventoryItem>(InitialInventory);
-        //}
-
         public PizzaStore() //every new pizza store comes with a default amount of some items and empty order history
         {
             Id = Interlocked.Increment(ref nextID);
             Inventory = new Dictionary<string, int>(InitialInventory);
             Location = new Address("701 W Nedderman Dr " + Id, "Arlington", "TX", "76019", "US"); //unique default address
         }
-
-        //public PizzaStore(List<InventoryItem> diffInitialInventory)    //a new store opening with a different inventory than the default
-        //{
-        //    Id = Interlocked.Increment(ref nextID);
-        //    //Inventory = new HashSet<InventoryItem>(diffInitialInventory);
-        //}
 
         public PizzaStore(Dictionary<string, int> diffInitialInventory)    //a new store opening with a different inventory than the default
         {
@@ -105,30 +80,9 @@ namespace Project0.Library.Models
             Name = name;
             Inventory = new Dictionary<string, int>(diffInitialInventory);
             Location = address;
-            //still has empty order history, need to add after constructor
+            //still has empty order history, need to add to after calling constructor
         }
 
-
-        //public void AddInventoryItem(string key, int initialAmount)   //add new item with the specified amount to the store's inventory
-        //{
-        //    if (key is null)
-        //    {
-        //        //key is null -> log it
-        //        throw new ArgumentNullException("Inventory Key cannot be null");
-        //    }
-        //    else
-        //    {
-        //        foreach (InventoryItem item in Inventory)
-        //        {
-        //            if (item.Name == key) //forced to add equality check through loop.
-        //            {
-        //                //key matches existing item in inventory -> log it
-        //                throw new ArgumentException("Inventory Key matches existing item");
-        //            }
-        //        }
-        //        Inventory.Add(new InventoryItem(key, initialAmount));
-        //    }
-        //}
 
         public void AddInventoryItem(string key, int initialAmount)   //add new item with the specified amount to the store's inventory
         {
@@ -148,41 +102,15 @@ namespace Project0.Library.Models
             }
         }
 
-        //public void IncreaseInventoryQuantity(string itemName, int amount)
-        //{
-        //    foreach (InventoryItem item in Inventory)
-        //    {
-        //        if (item.Name == itemName)
-        //        {
-        //            item.Quantity += amount;
-        //            return; //only one item can have the name, save time by returning.
-        //        }
-        //    }
-        //}
-
         public void IncreaseInventoryQuantity(string itemName, int amount)
         {
             Inventory[itemName] += amount;
         }
 
-        //public bool CheckOrderItemAvailability(string itemName, int amount)
-        //{
-        //    foreach (InventoryItem item in Inventory)
-        //    {
-        //        if (item.Name == itemName)
-        //        {
-        //            return (item.Quantity >= amount ); 
-        //        }
-        //    }
-        //    //key not found -> log it 
-        //    throw new ArgumentOutOfRangeException("Item not in inventory");
-        //}
-
         public bool CheckOrderItemAvailability(Dictionary<Pizza, int> pizzas)
         {
             try
             {
-
                 Dictionary<string, int> totalIngredientRequirements = new Dictionary<string, int>();
                 foreach (var pizza in pizzas) //foreach pizza
                 {
@@ -226,22 +154,6 @@ namespace Project0.Library.Models
                 throw e;
             }
         }
-
-        //public bool OrderItem(string itemName, int amount)
-        //{
-        //    foreach (InventoryItem item in Inventory)
-        //    {
-        //        if (item.Name == itemName)
-        //        {
-        //            //inventory decreases when order accepted
-        //            Inventory.Remove(new InventoryItem(item.Name, item.Quantity) );
-        //            Inventory.Add(new InventoryItem(item.Name, item.Quantity - amount));
-        //                //item.Quantity -= amount; 
-        //            return true;
-        //        }
-        //    }
-        //    return false; //shouldn't be reachable if checked order item availability beforehand
-        //}
 
         public bool OrderItem(KeyValuePair<string, int> item, int amount)
         {
