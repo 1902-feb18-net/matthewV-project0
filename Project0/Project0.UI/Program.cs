@@ -27,8 +27,8 @@ namespace Project0.UI
             var options = optionsBuilder.Options;
 
             //testing serialization worked with multiple stores
-            storeRepository.AddStore(new PizzaStore());
-            storeRepository.AddStore(new PizzaStore());
+            //storeRepository.AddStore(new PizzaStore());
+            //storeRepository.AddStore(new PizzaStore());
 
             while (true) //loop until exit command given
             {
@@ -152,7 +152,9 @@ namespace Project0.UI
                     //    stores = (List<PizzaStore>)serializer.Deserialize(stream);
                     //}
                     Console.WriteLine("Loading Success.");
-                    foreach (var item in storeRepository.GetStores()) //delete current repo one restaraunt at a time
+                    var allStores = storeRepository.GetAllStores();
+
+                    foreach (var item in allStores) //delete current repo one restaraunt at a time
                     {
                         storeRepository.DeleteStore(item.Id);
                     }

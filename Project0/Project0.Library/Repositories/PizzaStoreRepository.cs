@@ -59,6 +59,30 @@ namespace Project0.Library.Repositories
         }
 
         /// <summary>
+        /// Get all restaurants.
+        /// </summary>
+        /// <returns>The collection of restaurants</returns>
+        public ICollection<PizzaStore> GetAllStores(string search = null)
+        {
+            if (search == null) //no parameter defaults to returning all items
+            {
+                return _stores.ToList();
+            }
+            else
+            {   //or return each pizza restaurant with the given item in inventory (doesn't check quantity)
+                List<PizzaStore> match = new List<PizzaStore>();
+                foreach (var item in _stores)
+                {
+                    if (item.Inventory.ContainsKey(search))
+                    {
+                        match.Add(item);
+                    }     
+                }
+                return match;
+            }
+        }
+
+        /// <summary>
         /// Get a restaurants by ID.
         /// </summary>
         /// <param name="id">The ID of the restaurant</param>
