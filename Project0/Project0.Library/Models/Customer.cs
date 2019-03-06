@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Runtime.Serialization;
 
 namespace Project0.Library.Models
@@ -7,6 +6,8 @@ namespace Project0.Library.Models
     [DataContract]
     public class Customer
     {
+        public int Id { get; set; }
+
         private PizzaStore _store = new PizzaStore(); //customer has default pizza store  
 
         [DataMember]
@@ -15,8 +16,8 @@ namespace Project0.Library.Models
         public string LastName { get; set; }
         [DataMember]
         public string Email { get; set; }
-        [DataMember]
-        public Address Address { get; set; }
+        //[DataMember]
+        //public Address Address { get; set; }
         //etc.
         [DataMember]
         public PizzaStore Store
@@ -27,13 +28,6 @@ namespace Project0.Library.Models
                 _store = value ?? throw new ArgumentNullException(nameof(value), "Customer's store must not be null.");
             }
         }   
-
-
-        public Customer()  //constructor uses default store
-        {
-            FirstName = null;
-            LastName = null;
-        }
 
         public Customer(string first, string last) //constructor uses default store
         {
@@ -49,6 +43,12 @@ namespace Project0.Library.Models
             Store = newStore;
         }
 
+        public Customer()  //constructor uses default store
+        {
+            FirstName = null;
+            LastName = null;
+            Email = null;
+        }
 
 
     }

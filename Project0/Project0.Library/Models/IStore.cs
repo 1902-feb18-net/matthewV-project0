@@ -13,8 +13,8 @@ namespace Project0.Library.Models
         [DataMember]
         string Name { get; set; }
 
-        [DataMember]
-        Address Location { get; set; }
+        //[DataMember]
+        //Address Location { get; set; }
 
         [DataMember]
         List<Order> OrderHistory { get; } //no rewriting history

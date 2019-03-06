@@ -1,7 +1,8 @@
-﻿using Project0.Library.Models;
+﻿using Project0.DataAccess;
+using Project0.Library.DAORepositories;
+using Project0.Library.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
 
 namespace Project0.Library.Repositories
@@ -12,16 +13,21 @@ namespace Project0.Library.Repositories
         /// <summary>
         /// A repository managing data access for pizza restaurants.
         /// </summary>
-        [DataMember]
-        private readonly ICollection<PizzaStore> _stores;
+        public LocationRepo locationRepo;
+
+        public PizzaStoreRepository(project0Context db)
+        {
+            locationRepo = new LocationRepo(db) ?? throw new ArgumentNullException(nameof(db));
+        }
 
         /// <summary>
-        /// Initializes a new pizza restaurant repository given a suitable data source.
+        /// Get a restaurant by ID.
         /// </summary>
-        /// <param name="data">The data source</param>
-        public PizzaStoreRepository(ICollection<PizzaStore> data)
+        /// <param name="id">The ID of the restaurant</param>
+        /// <returns>The restaurant</returns>
+        public PizzaStore GetStoreById(int id)
         {
-            _stores = data ?? throw new ArgumentNullException(nameof(data));
+            return Mapper.Map(locationRepo.GetTById(id));
         }
 
         /// <summary>
@@ -32,64 +38,23 @@ namespace Project0.Library.Repositories
         {
             if (search == null) //no parameter defaults to returning each item
             {
-                foreach (var item in _stores)
+                foreach (var item in locationRepo.GetAllT())
                 {
-                    yield return item;
+                    yield return Mapper.Map(item);
                 }
             }
             else
             {   //or return each pizza restaurant with the given item in inventory (doesn't check quantity)
-                foreach (var item in _stores) 
+                PizzaStore store;
+                foreach (var item in locationRepo.GetAllT())
                 {
-                    //foreach(InventoryItem inven in item.Inventory)
-                    //{
-                    //    if(inven.Name == search)
-                    //    {
-                    //        yield return item;
-                    //    }
-                    //}
-
-                    if (item.Inventory.ContainsKey(search))
+                    store = Mapper.Map(item);
+                    if (store.Inventory.ContainsKey(search))
                     {
-                        yield return item;
+                        yield return store;
                     }
-                    
                 }
             }
-        }
-
-        /// <summary>
-        /// Get all restaurants.
-        /// </summary>
-        /// <returns>The collection of restaurants</returns>
-        public ICollection<PizzaStore> GetAllStores(string search = null)
-        {
-            if (search == null) //no parameter defaults to returning all items
-            {
-                return _stores.ToList();
-            }
-            else
-            {   //or return each pizza restaurant with the given item in inventory (doesn't check quantity)
-                List<PizzaStore> match = new List<PizzaStore>();
-                foreach (var item in _stores)
-                {
-                    if (item.Inventory.ContainsKey(search))
-                    {
-                        match.Add(item);
-                    }     
-                }
-                return match;
-            }
-        }
-
-        /// <summary>
-        /// Get a restaurants by ID.
-        /// </summary>
-        /// <param name="id">The ID of the restaurant</param>
-        /// <returns>The restaurant</returns>
-        public PizzaStore GetStoreById(int id)
-        {
-            return _stores.First(r => r.Id == id);  //First will always return the one result, since Id unique
         }
 
         /// <summary>
@@ -98,20 +63,36 @@ namespace Project0.Library.Repositories
         /// <param name="restaurant">The restaurant object</param>
         public void AddStore(PizzaStore restaurant)
         {
-            if (_stores.Any(r => r.Id == restaurant.Id))
+            Location store = Mapper.Map(restaurant);
+
+            if (locationRepo.GetTById(store.Id) != null)
             {
-                throw new InvalidOperationException($"Pizza Store with ID {restaurant.Id} already exists.");
+                throw new InvalidOperationException($"Pizza Store with ID {store.Id} already exists.");
             }
-            _stores.Add(restaurant);
+            locationRepo.AddT(store);
         }
+
+
+        /// <summary>
+        /// Get all restaurants.
+        /// </summary>
+        /// <returns>The collection of restaurants</returns>
+        public ICollection<PizzaStore> GetAllStores()
+        {
+            return new List<PizzaStore>(Mapper.Map(locationRepo.GetAllT()) );
+        }
+
+
+
 
         /// <summary>
         /// Delete a pizza restaurant by ID. 
         /// </summary>
         /// <param name="restaurantId">The ID of the restaurant</param>
-        public void DeleteStore(int restaurantId)
+        public void DeleteStore(PizzaStore rest)
         {
-            _stores.Remove(_stores.First(r => r.Id == restaurantId));
+            Location store = Mapper.Map(rest);
+            locationRepo.DeleteT(store);          
         }
 
         /// <summary>
@@ -119,11 +100,16 @@ namespace Project0.Library.Repositories
         /// </summary>
         /// <param name="restaurant">The restaurant with changed values</param>
         /// <remarks>Have to make sure pizza store obj arg has all the same fields as original (except ones changing)</remarks>
-        public void UpdateStore(PizzaStore restaurant) 
+        public void UpdateStore(PizzaStore restaurant)
         {
-            DeleteStore(restaurant.Id);
-            AddStore(restaurant);  
+            locationRepo.UpdateT(Mapper.Map(restaurant));
         }
+
+        //public void UpdateStore(PizzaStore restaurant)
+        //{
+        //    DeleteStore(restaurant);
+        //    AddStore(restaurant);
+        //}
 
     }
 }

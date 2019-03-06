@@ -8,6 +8,8 @@ namespace Project0.Library.Models
     [DataContract]
     public class PizzaStore : IStore
     {
+        public int Id { get; set; }
+
         public static Dictionary<string, int> InitialInventory = new Dictionary<string, int>()
         {
             { "Cheese", 25 },
@@ -18,9 +20,9 @@ namespace Project0.Library.Models
             { "Spinach", 5 }
         };
 
-        private static int nextID = 0; //for uniqueness of ids
-        [DataMember]
-        public int Id { get;} //for identification of this store object. Readonly. Cannot be null.
+        //private static int nextID = 0; //for uniqueness of ids
+        //[DataMember]
+        //public int Id { get;} //for identification of this store object. Readonly. Cannot be null.
 
         private string _name = "Matthew's Pizzas"; //default name. Must not be null.
 
@@ -56,32 +58,103 @@ namespace Project0.Library.Models
         public List<Order> OrderHistory { get; } = new List<Order>();  //"location has order history" is a requirement. New store has no orders yet.
                                                                        //do not want rewriting history -> no set, just add to the List.
 
-        [DataMember]
-        public Address Location { get; set; } //must be unique?
+        //[DataMember]
+        //public Address Location { get; set; } //must be unique?
 
         public PizzaStore() //every new pizza store comes with a default amount of some items and empty order history
         {
-            Id = Interlocked.Increment(ref nextID);
+            //Id = Interlocked.Increment(ref nextID);
             Inventory = new Dictionary<string, int>(InitialInventory);
-            Location = new Address("701 W Nedderman Dr " + Id, "Arlington", "TX", "76019", "US"); //unique default address
+            // Location = new Address("701 W Nedderman Dr ", "Arlington", "TX", "76019", "US"); //unique default address
+        }
+
+        public PizzaStore(string name)
+        {
+            //Id = Interlocked.Increment(ref nextID);
+            Name = name;
+            Inventory = new Dictionary<string, int>(InitialInventory);
+            //Location = new Address("701 W Nedderman Dr ", "Arlington", "TX", "76019", "US");
+            //still has empty order history, need to add to after calling constructor
         }
 
         public PizzaStore(Dictionary<string, int> diffInitialInventory)    //a new store opening with a different inventory than the default
         {
-            Id = Interlocked.Increment(ref nextID);
+            //Id = Interlocked.Increment(ref nextID);
             Inventory = new Dictionary<string, int>(diffInitialInventory);
-            Location = new Address("701 W Nedderman Dr " + Id, "Arlington", "TX", "76019", "US");
+            //Location = new Address("701 W Nedderman Dr ", "Arlington", "TX", "76019", "US");
         }
 
-        //a new store opening with given values. Caller needs to verify address uniqueness.
-        public PizzaStore(string name, Dictionary<string, int> diffInitialInventory, Address address)
+        //public PizzaStore(Address address)
+        //{
+        //    //Id = Interlocked.Increment(ref nextID);
+        //    Inventory = new Dictionary<string, int>(InitialInventory);
+        //    Location = address;
+        //}
+
+        //public PizzaStore(Dictionary<string, int> diffInitialInventory, Address address)
+        //{
+        //    //Id = Interlocked.Increment(ref nextID);
+        //    Inventory = new Dictionary<string, int>(diffInitialInventory);
+        //    Location = address;
+        //}
+
+        //public PizzaStore(string name, Address address)
+        //{
+        //    //Id = Interlocked.Increment(ref nextID);
+        //    Name = name;
+        //    Inventory = new Dictionary<string, int>(InitialInventory);
+        //    Location = address;
+        //}
+
+        public PizzaStore(string name, Dictionary<string, int> diffInitialInventory)
         {
-            Id = Interlocked.Increment(ref nextID);
-            Name = name;
-            Inventory = new Dictionary<string, int>(diffInitialInventory);
-            Location = address;
+            //Id = Interlocked.Increment(ref nextID);
+
+            if (name != null)
+            {
+                Name = name;
+            }
+            //else uses default
+            if (diffInitialInventory != null)
+            {
+                Inventory = new Dictionary<string, int>(diffInitialInventory);
+            }
+            else
+            {
+                Inventory = new Dictionary<string, int>(InitialInventory);
+            }
+
             //still has empty order history, need to add to after calling constructor
         }
+
+        ////a new store opening with given values. Caller needs to verify address uniqueness?
+        //public PizzaStore(string name, Dictionary<string, int> diffInitialInventory, Address address)
+        //{
+        //    //Id = Interlocked.Increment(ref nextID);
+
+        //    if (name != null)
+        //    {
+        //        Name = name;
+        //    }
+        //    //else uses default
+        //    if (diffInitialInventory != null)
+        //    {
+        //        Inventory = new Dictionary<string, int>(diffInitialInventory);
+        //    }
+        //    else
+        //    {
+        //        Inventory = new Dictionary<string, int>(InitialInventory);
+        //    }
+        //    if (address != null)
+        //    {
+        //        Location = address;
+        //    }
+        //    else
+        //    {
+        //        Location = new Address("701 W Nedderman Dr ", "Arlington", "TX", "76019", "US");
+        //    }
+        //    //still has empty order history, need to add to after calling constructor
+        //}
 
 
         public void AddInventoryItem(string key, int initialAmount)   //add new item with the specified amount to the store's inventory

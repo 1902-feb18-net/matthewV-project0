@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Project0.DataAccess;
+using Project0.Library.Models;
 
 namespace Project0.Library.DAORepositories
 {
@@ -10,7 +11,7 @@ namespace Project0.Library.DAORepositories
     {
         private readonly project0Context Context;
 
-        OrderRepo(project0Context dbcontext)
+        public OrderRepo(project0Context dbcontext)
         {
             Context = dbcontext;
         }
@@ -61,7 +62,7 @@ namespace Project0.Library.DAORepositories
                 if (existingOrd != null) //if given order is actually in db
                 {
                     //update local values
-                    existingOrd.AddressId = order.AddressId;
+                    //existingOrd.AddressId = order.AddressId;
                     existingOrd.CustomerId = order.CustomerId;
                     existingOrd.OrderTime = order.OrderTime;
                     existingOrd.StoreId = order.StoreId;
@@ -113,6 +114,11 @@ namespace Project0.Library.DAORepositories
             return Context.Orders; //implicit upcasting to IEnumerable<>
         }
 
+        public ICollection<Order> GetAllOrders()
+        {
+            return new List<Order>(Mapper.Map(this.GetAllT()));
+        }
+
         public Orders GetTById(int id)
         {
             return Context.Orders.Find(id); //may return null, if it doesn't exist in db
@@ -120,7 +126,7 @@ namespace Project0.Library.DAORepositories
 
         public IEnumerable<Orders> GetOrdersOfCustomer(int custId)
         {
-                return Context.Orders.Where(ord => ord.CustomerId == custId);
+           return Context.Orders.Where(ord => ord.CustomerId == custId);
         }
 
         public IEnumerable<Orders> GetOrdersOfLocation(int storeId)
@@ -138,25 +144,15 @@ namespace Project0.Library.DAORepositories
             return Context.Orders.OrderByDescending(o => o.OrderTime);
         }
 
-        //public IEnumerable<Orders> GetOrdersSortedExpensive()
-        //{
 
-        //    var included = Context.Orders
-        //        .Include(o => o.OrderItems)
-        //            .ThenInclude(i => i.Pizza);
-        //            //.OrderBy(o => o.OrderItems.Pizza.price *  o.OrderItems.quantity);
-      
-        //}
-
-
-        public IEnumerable<Orders> GetOrdersStatistics()
+        public IEnumerable<Orders> GetOrdersSortedExpensive()
         {
-            throw new System.NotImplementedException();
-        }
+            throw new NotImplementedException();
 
-        public Orders SuggestOrder(int custId)
-        {
-            throw new System.NotImplementedException();
+            //var included = Context.Orders
+            //    .Include(o => o.OrderItems)
+            //        .ThenInclude(p => p.Pizza)
+            //            .ThenInclude(pi => pi.PizzaIngredients);
         }
 
         public IEnumerable<Orders> GetOrdersSortedCheapest()
@@ -164,9 +160,18 @@ namespace Project0.Library.DAORepositories
             throw new NotImplementedException();
         }
 
-        public IEnumerable<Orders> GetOrdersSortedExpensive()
+        public IEnumerable<Orders> GetOrdersStatistics()
         {
             throw new NotImplementedException();
         }
+
+        public Orders SuggestOrder(int custId)
+        {
+            throw new NotImplementedException();
+        }
+
+
+
+
     }
 }

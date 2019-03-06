@@ -6,22 +6,24 @@ namespace Project0.Library
 {
     public class Mapper
     {
-        public static Models.Address Map(Address address) =>
-            new Models.Address
-            {
-                Street = address.Street,
-                City = address.City,
-                State = address.State,
-                Country = address.Country,
-                Zipcode = address.Zipcode
-            };
+        //DAO to Model
+        //public static Models.Address Map(Address address) =>
+        //    new Models.Address
+        //    { 
+        //        Street = address.Street,
+        //        City = address.City,
+        //        State = address.State,
+        //        Country = address.Country,
+        //        Zipcode = address.Zipcode
+        //    };
 
         public static Models.Customer Map(Customer customer) => new Models.Customer
         {
+            Id = customer.Id,
             FirstName = customer.FirstName,
             LastName = customer.LastName,
             Email = customer.Email,
-            Address = Map(customer.Address),
+            //Address = Map(customer.Address),
             Store = Map(customer.Store),
         };
 
@@ -37,6 +39,7 @@ namespace Project0.Library
 
         public static Models.Pizza Map(Pizza pizza) => new Models.Pizza
         {
+            Id = pizza.Id,
             Price = pizza.Price,
             Items = Map(pizza.PizzaIngredients)
         };
@@ -61,34 +64,45 @@ namespace Project0.Library
             return orderItems;
         }
 
-        public static Models.Order Map(Orders order) =>
-            new Models.Order(Map(order.Store), Map(order.Customer), Map(order.Address), Map(order.OrderItems), order.OrderTime);
+        public static Models.Order Map(Orders order)
+        {
+            Models.Order ord = new Models.Order(Map(order.Store), Map(order.Customer), Map(order.OrderItems), order.OrderTime);
+            ord.Id = order.Id;
+            return ord;
+        }
+        //new Models.Order(Map(order.Store), Map(order.Customer), Map(order.Address), Map(order.OrderItems), order.OrderTime);
 
         public static Models.PizzaStore Map(Location store)
         {
-            var newStore = new Models.PizzaStore(store.LocationName, Map(store.Inventory), Map(store.Address));
-            foreach (var order in store.Orders)
+            Models.PizzaStore newStore = null;
+            if (store != null)
             {
-                newStore.OrderHistory.Add(Map(order));
+                newStore = new Models.PizzaStore(store.LocationName, Map(store.Inventory));
+                newStore.Id = store.Id;
+                foreach (var order in store.Orders)
+                {
+                    newStore.OrderHistory.Add(Map(order));
+                }
             }
+
             return newStore;
         }
 
 
+        //Model to DAO
 
-        public static Address Map(Models.Address address) =>
-            new Address
-            {
-                Street = address.Street,
-                City = address.City,
-                State = address.State,
-                Country = address.Country,
-                Zipcode = address.Zipcode
-            };
+        //public static Address Map(Models.Address address) =>
+        //    new Address
+        //    {
+        //        Id = address.Id,
+        //        Street = address.Street,
+        //        City = address.City,
+        //        State = address.State,
+        //        Country = address.Country,
+        //        Zipcode = address.Zipcode
+        //    };
 
-
-        public static Ingredients Map(string name) => new Ingredients {Name = name};
-
+        public static Ingredients Map(string name) => new Ingredients { Name = name };
 
         public static ICollection<Inventory> MapInventory(Dictionary<string, int> inventory)
         {
@@ -108,7 +122,7 @@ namespace Project0.Library
         public static ICollection<PizzaIngredients> MapIngredients(Dictionary<string, int> ingredients)
         {
             List<PizzaIngredients> pizzaIngredients = new List<PizzaIngredients>();
-            foreach(var ingred in ingredients)
+            foreach (var ingred in ingredients)
             {
                 PizzaIngredients newIng = new PizzaIngredients
                 {
@@ -117,7 +131,6 @@ namespace Project0.Library
                 };
                 pizzaIngredients.Add(newIng);
             }
-
             return pizzaIngredients;
         }
 
@@ -128,19 +141,19 @@ namespace Project0.Library
             Price = pizza.Price
         };
 
-        public static ICollection<OrderItems> Map(Dictionary<Models.Pizza, int> orderItems) 
+        public static ICollection<OrderItems> Map(Dictionary<Models.Pizza, int> orderItems)
         {
-                List<OrderItems> ordItems = new List<OrderItems>();
-                foreach(var item in orderItems)
+            List<OrderItems> ordItems = new List<OrderItems>();
+            foreach (var item in orderItems)
+            {
+                OrderItems newOrdItems = new OrderItems
                 {
-                    OrderItems newOrdItems = new OrderItems
-                    {
-                        Pizza = Map(item.Key),
-                        Quantity = item.Value,
-                    };
-                    ordItems.Add(newOrdItems);
-                }
-                return ordItems;
+                    Pizza = Map(item.Key),
+                    Quantity = item.Value,
+                };
+                ordItems.Add(newOrdItems);
+            }
+            return ordItems;
         }
 
         public static ICollection<Orders> Map(List<Models.Order> orderHistory)
@@ -150,7 +163,7 @@ namespace Project0.Library
             {
                 Orders newOrd = new Orders()
                 {
-                    Address = Map(item.Address),
+                    //Address = Map(item.Address),
                     Customer = Map(item.Customer),
                     OrderItems = Map(item.OrderItems),
                     OrderTime = item.OrderTime,
@@ -159,27 +172,115 @@ namespace Project0.Library
                 };
                 orders.Add(newOrd);
             }
-
             return orders;
         }
 
         public static Location Map(Models.PizzaStore store) => new Location
         {
+            Id = store.Id,
             LocationName = store.Name,
-            Address = Map(store.Location),
+            //Address = Map(store.Location),
             Inventory = MapInventory(store.Inventory),
             Orders = Map(store.OrderHistory)
         };
-
 
         public static Customer Map(Models.Customer customer) => new Customer
         {
             FirstName = customer.FirstName,
             LastName = customer.LastName,
             Email = customer.Email,
-            Address = Map(customer.Address),
+            //Address = Map(customer.Address),
             Store = Map(customer.Store)
         };
+
+
+        //IEnumerables, DAOs to Models
+
+
+        //public static IEnumerable<Models.Address> Map(IEnumerable<Address> address)
+        //{
+        //    foreach (var o in address)
+        //    {
+        //        yield return Map(o);
+        //    }
+        //}
+
+        public static IEnumerable<Models.Customer> Map(IEnumerable<Customer> customer)
+        {
+            foreach (var o in customer)
+            {
+                yield return Map(o);
+            }
+        }
+
+        public static IEnumerable<Models.Pizza> Map(IEnumerable<Pizza> pizza)
+        {
+            foreach (var o in pizza)
+            {
+                yield return Map(o);
+            }
+        }
+
+        public static IEnumerable<Models.Order> Map(IEnumerable<Orders> order)
+        {
+            foreach (var o in order)
+            {
+                yield return Map(o);
+            }
+        }
+
+        public static IEnumerable<Models.PizzaStore> Map(IEnumerable<Location> stores)
+        {
+            foreach (var o in stores)
+            {
+                yield return Map(o);
+            }
+        }
+
+
+
+        //IEnumerables, Models to DAOs
+
+        //public static IEnumerable<Address> Map(IEnumerable<Models.Address> address)
+        //{
+        //    foreach (var o in address)
+        //    {
+        //        yield return Map(o);
+        //    }
+        //}
+
+        public static IEnumerable<Ingredients> Map(IEnumerable<string> ingredients)
+        {
+            foreach (var o in ingredients)
+            {
+                yield return Map(o);
+            }
+        }
+
+        public static IEnumerable<Pizza> Map(IEnumerable<Models.Pizza> pizzas)
+        {
+            foreach (var o in pizzas)
+            {
+                yield return Map(o);
+            }
+        }
+
+        public static IEnumerable<Location> Map(IEnumerable<Models.PizzaStore> stores)
+        {
+            foreach (var o in stores)
+            {
+                yield return Map(o);
+            }
+        }
+
+        public static IEnumerable<Customer> Map(IEnumerable<Models.Customer> customers)
+        {
+            foreach (var o in customers)
+            {
+                yield return Map(o);
+            }
+        }
+
 
     }
 }

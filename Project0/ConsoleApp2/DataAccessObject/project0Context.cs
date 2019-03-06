@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Project0.DataAccess
+namespace DataAccessObject
 {
     public partial class project0Context : DbContext
     {

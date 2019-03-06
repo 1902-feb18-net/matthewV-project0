@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Project0.DataAccess
+namespace DataAccessObject
 {
     public partial class Orders
     {

@@ -9,7 +9,7 @@ namespace Project0.Library.DAORepositories
     {
         private readonly project0Context Context;
 
-        IngredientsRepo(project0Context dbcontext)
+        public IngredientsRepo(project0Context dbcontext)
         {
             Context = dbcontext;
         }

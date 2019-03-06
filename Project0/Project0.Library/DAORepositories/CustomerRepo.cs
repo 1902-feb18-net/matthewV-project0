@@ -10,7 +10,7 @@ namespace Project0.Library.DAORepositories
     {
         private readonly project0Context Context;
 
-        CustomerRepo(project0Context dbcontext)
+        public CustomerRepo(project0Context dbcontext)
         {
             Context = dbcontext;
         }
@@ -46,6 +46,38 @@ namespace Project0.Library.DAORepositories
             }
         }
 
+        public void AddCustomer(Models.Customer customer)
+        {
+            if (customer is null)
+            {
+                //log it!
+
+                throw new ArgumentNullException("Cannot add null customer");
+            }
+            else
+            {
+                Customer cust = Mapper.Map(customer);
+                if (GetTById(cust.Id) != null) //if given customer is already in db
+                {
+                    throw new ArgumentOutOfRangeException("Customer with given id already exists.");
+                }
+                else
+                {
+                    try
+                    {
+                        Context.Customer.Add(cust); //add to local context
+                        Context.SaveChanges();  //run context.SaveChanges() to run the appropriate insert, adding it to db
+                    }
+                    catch (DbUpdateException)
+                    {
+                        //log it!
+
+                        throw;
+                    }
+                }
+            }
+        }
+
         public void UpdateT(Customer customer)
         {
             if (customer is null)
@@ -61,7 +93,7 @@ namespace Project0.Library.DAORepositories
                 if (existingCust != null) //if given customer is actually in db
                 {
                     //update local values
-                    existingCust.AddressId = customer.AddressId;
+                    //existingCust.AddressId = customer.AddressId;
                     existingCust.Email = customer.Email;
                     existingCust.FirstName = customer.FirstName;
                     existingCust.LastName = customer.LastName;
@@ -69,6 +101,34 @@ namespace Project0.Library.DAORepositories
 
                     existingCust.Orders = customer.Orders;
                     
+
+                    Context.SaveChanges(); //update db's values
+                }
+                else
+                {
+                    //log it!
+                    throw new ArgumentOutOfRangeException("Customer with given id does not exist");
+                }
+            }
+        }
+
+        public void UpdateCustomer(Models.Customer customer)
+        {
+            if (customer is null)
+            {
+                //log it!
+                throw new ArgumentNullException("Cannot update null customer");
+            }
+            else
+            {
+                Customer cust = Mapper.Map(customer);
+                //customer.Id is never null, no null check
+
+                var existingCust = GetTById(cust.Id);
+                if (existingCust != null) //if given customer is actually in db
+                {
+                    //update local values
+                    Context.Entry(existingCust).CurrentValues.SetValues(cust);
 
                     Context.SaveChanges(); //update db's values
                 }
@@ -111,17 +171,59 @@ namespace Project0.Library.DAORepositories
             }
         }
 
+        public void DeleteCustomer(Models.Customer customer)
+        {
+            if (customer is null)
+            {
+                throw new ArgumentNullException("Cannot delete null customer");
+            }
+            else
+            {
+                Customer cust = Mapper.Map(customer);
+                if (GetTById(cust.Id) != null) //if given customer is already in db
+                {
+                    try
+                    {
+                        Context.Customer.Remove(cust); //remove from local context
+                        Context.SaveChanges();  //run context.SaveChanges() to run the appropriate delete, removing it from db
+                    }
+                    catch (DbUpdateException)
+                    {
+                        //log it!
+
+                        throw;
+                    }
+
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("Customer with given id does not exist.");
+                }
+
+            }
+        }
 
         public IEnumerable<Customer> GetAllT()
         {
             return Context.Customer; //implicit upcasting to IEnumerable<>
         }
 
+        public IEnumerable<Models.Customer> GetAllCustomer()
+        {
+            // disable pointless tracking for performance
+            return Mapper.Map(Context.Customer.AsNoTracking());
+        }
 
         public Customer GetTById(int id)
         {
             return Context.Customer.Find(id); //may return null, if it doesn't exist in db
         }
+
+        public Models.Customer GetCustomer(int id)
+        {
+            return Mapper.Map(Context.Customer.Find(id)); //may return null, if it doesn't exist in db
+        }
+
 
 
         public IEnumerable<Customer> GetCustomersByFirstName(string name)

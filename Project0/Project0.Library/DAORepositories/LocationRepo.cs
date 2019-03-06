@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Project0.DataAccess;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Project0.Library.DAORepositories
 {
@@ -9,7 +11,7 @@ namespace Project0.Library.DAORepositories
     {
         private readonly project0Context Context;
 
-        LocationRepo(project0Context dbcontext)
+        public LocationRepo(project0Context dbcontext)
         {
             Context = dbcontext;
         }
@@ -60,12 +62,26 @@ namespace Project0.Library.DAORepositories
                 if (existingLoc != null) //if given Location is actually in db
                 {
                     //update local values
-                    existingLoc.AddressId = obj.AddressId;
-                    existingLoc.LocationName = obj.LocationName;
+                    //existingLoc.AddressId = obj.AddressId;
 
-                    existingLoc.Customer = obj.Customer;
-                    existingLoc.Inventory = obj.Inventory;
-                    existingLoc.Orders = obj.Orders;
+                    //existingLoc.LocationName = obj.LocationName;
+
+                    //existingLoc.Customer = obj.Customer;
+                    //existingLoc.Inventory = obj.Inventory;
+                    //existingLoc.Orders = obj.Orders;
+
+                    Context.Entry(existingLoc).CurrentValues.SetValues(obj);
+
+                    //Context.Attach(existingLoc);
+                    //IEnumerable<EntityEntry> unchangedEntities = Context.ChangeTracker.Entries().Where(x => x.State == EntityState.Unchanged);
+                    //foreach (EntityEntry ee in unchangedEntities)
+                    //{
+                    //    ee.State = EntityState.Modified;
+                    //}
+
+                    //Context.Entry(existingLoc.Inventory).State = EntityState.Modified;
+                    //Context.Entry(existingLoc.Customer).State = EntityState.Modified;
+                    //Context.Entry(existingLoc.Orders).State = EntityState.Modified;
 
                     Context.SaveChanges(); //update db's values
                 }
@@ -103,20 +119,26 @@ namespace Project0.Library.DAORepositories
                 {
                     throw new ArgumentOutOfRangeException("Location with given id does not exist.");
                 }
-
             }
         }
 
 
         public IEnumerable<Location> GetAllT()
         {
-            return Context.Location; //implicit upcasting to IEnumerable<>
+            return Context.Location.Include(i => i.Inventory)
+                                        .ThenInclude(a => a.Ingredients)          
+                                    .Include(o => o.Orders); // //implicit upcasting to IEnumerable<>
         }
 
 
         public Location GetTById(int id)
         {
             return Context.Location.Find(id); //may return null, if it doesn't exist in db
+            //Include(i => i.Inventory)
+            //  .ThenInclude(a => a.Ingredients)
+            //.Include(o => o.Orders)
+            //.SingleOrDefault(x => x.Id == id);
+
         }
 
     }

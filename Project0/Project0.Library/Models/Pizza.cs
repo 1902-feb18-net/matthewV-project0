@@ -7,6 +7,8 @@ namespace Project0.Library.Models
     [DataContract]
     public class Pizza //Allows on-the-fly creation of Pizzas with other ingredients and prices, not just the given child classes. 
     {
+        public int Id { get; set; }
+
         [DataMember]
         public Dictionary<string, int> Items = new Dictionary<string, int> { { "Dough", 1 }, { "Cheese", 1 } };
         //Set of items a pizza can be made out of. Every pizza should have at least dough and cheese! Assumed one of each.
